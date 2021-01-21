@@ -4,7 +4,7 @@ import { StyleSheet, Text, TextInput, View } from 'react-native';
 export default function App() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>チャット</Text>
+      <Text style={styles.title}>Chat</Text>
       <View style={styles.message}>
         <TextInput
           style={styles.selfTextInput}
@@ -47,6 +47,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-start',
     marginLeft: 10,
+    borderRadius: 20,
   },
   otherMessage: {
     marginTop: 10,
@@ -58,5 +59,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     marginRight: 10,
+    borderRadius: 20,
+    color: 'white',
+    backgroundColor:'blue',
+    overflow: 'hidden'
   }
 });
