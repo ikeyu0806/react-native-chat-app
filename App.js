@@ -1,10 +1,15 @@
 import React from 'react';
+import { useState } from "react";
 import { StyleSheet, Text, TextInput, View, Button } from 'react-native';
 import io from 'socket.io-client';
 
 const socket = io('http://localhost:4000', {transports: ['websocket']} );
 
 export default function App() {
+  const [myMessage, setMyMessage] = useState('')
+  const [sendMessage, setSendMessage] = useState({})
+  const [messageID, setMessageID] = useState(0)
+
   socket.on('message', function(msg){
     console.log(msg);
   })
@@ -16,6 +21,8 @@ export default function App() {
         <TextInput
           style={styles.selfTextInput}
           placeholder="メッセージを入力してください。"
+          onChange={(e) => {setMyMessage(e.target.value)}}
+          value={myMessage}
         />
         <View style={styles.space} />
       </View>
@@ -27,7 +34,11 @@ export default function App() {
       </View>
       <Button
         title="emit"
-        onPress={() => socket.emit('message','from React')}
+        onPress={() => {
+          socket.emit('message', myMessage)
+          setSendMessage(Object.assign(sendMessage, { [messageID]: {message: myMessage, type: 'myMessage'}}))
+         }
+        }
       />
     </View>
   );
