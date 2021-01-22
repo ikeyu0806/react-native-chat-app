@@ -1,7 +1,14 @@
 import React from 'react';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { StyleSheet, Text, TextInput, View, Button } from 'react-native';
+import io from 'socket.io-client';
+
+const socket = io('http://localhost:4000', {transports: ['websocket']} );
 
 export default function App() {
+  socket.on('message', function(msg){
+    console.log(msg);
+  })
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Chat</Text>
@@ -18,6 +25,10 @@ export default function App() {
           style={styles.otherMessage}
         >相手の送信メッセージ</Text>
       </View>
+      <Button
+        title="emit"
+        onPress={() => socket.emit('message','from React')}
+      />
     </View>
   );
 }
