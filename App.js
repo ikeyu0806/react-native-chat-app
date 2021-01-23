@@ -1,27 +1,35 @@
 import React from 'react';
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { StyleSheet, Text, TextInput, View, Button } from 'react-native';
 import io from 'socket.io-client';
 
-const socket = io('http://localhost:4000', {transports: ['websocket']} );
-
 export default function App() {
   const [myMessage, setMyMessage] = useState('')
-  const [sendMessages, setsendMessages] = useState({})
-  const [messageID, setMessageID] = useState(0)
+  const [messages, setMessages] = useState([])
+  const socketRef = useRef
 
-  socket.on('message', function(msg){
-    console.log(msg);
-  })
+  useEffect(() => {
+    socketRef.current = io('http://localhost:4000', {transports: ['websocket']} );
+    socketRef.current.on('message', function(msg) {
+      const incomingMessage = {
+        ...msg,
+        ownedByCurrentUser: msg.senderId === socketRef.current.id,
+      }
+      setMessages((messages) => [...messages, incomingMessage])
+      console.log(messages)
+    })
+  }, [messages])
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Chat</Text>
-      {Object.entries(sendMessages).map(([key, value]) => (
-        <View style={styles.message} key={key}>
+      {messages.map((msg, i) => (
+        <View style={styles.message} key={i}>
+          {!msg.ownedByCurrentUser && <View style={styles.containerSpace} />}
           <Text
-            style={value.type === 'myMessage' ? styles.selfMessage : styles.otherMessage}
-          >{value.message}</Text>
+            style={msg.ownedByCurrentUser ? styles.selfMessage : styles.otherMessage}
+          >{msg.body}</Text>
+          {msg.ownedByCurrentUser && <View style={styles.containerSpace} />}
         </View>
       ))}
       <TextInput
@@ -30,14 +38,11 @@ export default function App() {
         onChange={(e) => {setMyMessage(e.target.value)}}
         value={myMessage}
       />
-      <View style={styles.space} />
+      <View style={styles.containerSpace} />
       <Button
         title="メッセージ送信"
         onPress={() => {
-          socket.emit('message', myMessage)
-          setMessageID(messageID + 1)
-          setsendMessages(Object.assign(sendMessages, { [messageID]: {message: myMessage, type: 'myMessage'}}))
-          console.log(sendMessages)
+          socketRef.current.emit('message', {body: myMessage, senderId: socketRef.current.id})
          }
         }
       />
@@ -56,7 +61,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginLeft: 10,
   },
-  space: {
+  containerSpace: {
     flex: 1,
     flexDirection: 'row',
   },
@@ -94,7 +99,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'gray',
     flexDirection: 'row',
-    borderRadius: 20,
+    borderRadius: 5,
     margin: 10
   },
 });
