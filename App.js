@@ -4,7 +4,7 @@ import { StyleSheet, Text, TextInput, View, Button } from 'react-native';
 import io from 'socket.io-client';
 
 export default function App() {
-  const [myMessage, setMyMessage] = useState('')
+  const [myMessage, setMyMessage] = useState()
   const [messages, setMessages] = useState([])
   const socketRef = useRef()
 
@@ -39,7 +39,7 @@ export default function App() {
       <TextInput
         style={styles.textInput}
         placeholder="メッセージを入力してください。"
-        onChange={(e) => {setMyMessage(e.target.value)}}
+        onChangeText={(value) => {setMyMessage(value)}}
         value={myMessage}
       />
       <View style={styles.containerSpace} />
