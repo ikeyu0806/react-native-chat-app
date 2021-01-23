@@ -6,19 +6,23 @@ import io from 'socket.io-client';
 export default function App() {
   const [myMessage, setMyMessage] = useState('')
   const [messages, setMessages] = useState([])
-  const socketRef = useRef
+  const socketRef = useRef()
 
   useEffect(() => {
-    socketRef.current = io('http://localhost:4000', {transports: ['websocket']} );
+    console.log('Connectinng..')
+    socketRef.current = io('http://localhost:4000', {transports: ['websocket']} )
     socketRef.current.on('message', function(msg) {
       const incomingMessage = {
         ...msg,
         ownedByCurrentUser: msg.senderId === socketRef.current.id,
       }
       setMessages((messages) => [...messages, incomingMessage])
-      console.log(messages)
+      console.log(msg)
     })
-  }, [messages])
+    return () => {
+      socketRef.current.disconnect()
+    }
+  }, [])
 
   return (
     <View style={styles.container}>
